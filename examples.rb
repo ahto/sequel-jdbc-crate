@@ -82,9 +82,9 @@ DB.run("create table t (a string, b string) with (number_of_replicas = '0-all')"
 DB.run("insert into t values ('a', 'b')")
 DB.run("drop table t")
 
-# NOT SUPPORTED: ERROR -- : Java::IoCrateActionSql::SQLActionException: Unsupported statement.: SELECT count(*) AS "count" FROM (select id from items) AS "t1" LIMIT 1
+## NOT SUPPORTED: ERROR -- : Java::IoCrateActionSql::SQLActionException: Unsupported statement.: SELECT count(*) AS "count" FROM (select id from items) AS "t1" LIMIT 1
 ##You can also create datasets based on raw SQL:
-#dataset = DB['select id from items']
+##dataset = DB['select id from items']
 #dataset.count # will return the number of records in the result set
 #dataset.map(:id) # will return an array containing all values of the id column in the result set
 
@@ -104,15 +104,11 @@ end
 #############################
 
 safe_drop(:posts)
-# DB.run("create table posts (
-# id string PRIMARY KEY,
-# name string,
-# date timestamp,
-# stamp timestamp
-# ) with (number_of_replicas = '0-all')")
 DB.create_table :posts do
   primary_key :id
   String :name
+  String :category
+  String :author
   Date :date
   Timestamp :stamp
 end
@@ -120,7 +116,12 @@ end
 posts = DB.from(:posts)
 posts = DB[:posts] # same
 
-posts.insert(:id => SecureRandom.uuid, :name => 'abc', :date => Time.now.utc.to_date, :stamp => Time.now)
+posts.insert(:id => SecureRandom.uuid,
+             :name => 'abc',
+             :date => Time.now.utc.to_date,
+             :category => 'linux',
+             :author => 'JKR',
+             :stamp => Time.now)
 DB.run('REFRESH TABLE posts')
 
 ######################
@@ -134,8 +135,35 @@ p posts.order(:stamp).last
 # Filtering Records #
 ######################
 
-my_posts = posts.where(:stamp => (Date.today - 14)..(Date.today - 7))
+posts.where(:stamp => (Date.today - 14)..(Date.today + 1)).each {|post| p post[:stamp] }
 
+posts.where(:category => ['ruby', 'postgres', 'linux']).each {|post| p post[:category] }
+
+posts.where{stamp > Date.today << 1}.each {|post| p post[:stamp] }
+
+##this doesnt work yet but maybe it can be made to work
+##fails with Sequel::InvalidOperation: Pattern matching via regular expressions is not supported on
+## maybe will work with this https://crate.io/docs/stable/sql/analyzer.html?highlight=regular#pattern
+#posts.where(:category => /linux/i).each {|post| p post[:stamp] }
+
+
+posts.exclude(:category => ['ruby', 'postgres', 'linux']).each {|post| p post[:category] }
+
+posts.where('stamp IS NOT NULL').first
+
+author_name = 'JKR'
+posts.where('(stamp < ?) AND (author != ?)', Date.today - 3, author_name).first
+
+## NOT SUPPORTED ERROR -- : Java::IoCrateActionSql::SQLActionException: Unsupported statement.: SELECT * FROM "items" WHERE (price > (SELECT (avg("price") + 100) FROM "items")) LIMIT 1
+# DB[:items].where('price > ?', DB[:items].select{avg(price) + 100}).first
+
+
+#######################
+# Summarizing Records #
+#######################
+
+# Fix this: ERROR -- : Java::IoCrateActionSql::SQLActionException: ESCAPE is not supported yet.: SELECT count(*) AS "count" FROM "posts" WHERE ("category" LIKE '%ruby%' ESCAPE '\') LIMIT 1
+posts.where(Sequel.like(:category,'%ruby%')).count
 
 
 

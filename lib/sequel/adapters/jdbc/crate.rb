@@ -3,8 +3,6 @@ require 'sequel/adapters/jdbc'
 require 'jdbc/crate'
 Jdbc::Crate.load_driver
 
-require 'pp'
-
 module Sequel
   module JDBC
     Sequel.synchronize do
@@ -94,16 +92,14 @@ module Sequel
         def commit_transaction(*args); end
         def rollback_transaction(*args); end
 
-
-
       end
 
       module DatasetMethods
-
         # crate needs times in iso8601 format
         def literal_time_append(sql, t)
           literal_string_append(sql, t.iso8601)
         end
+
 
       end
 
