@@ -120,7 +120,7 @@ end
 posts = DB.from(:posts)
 posts = DB[:posts] # same
 
-posts.insert(:id => SecureRandom.uuid, :name => 'abc', :date => Time.now.utc.to_date, :stamp => Time.now.iso8601)
+posts.insert(:id => SecureRandom.uuid, :name => 'abc', :date => Time.now.utc.to_date, :stamp => Time.now)
 DB.run('REFRESH TABLE posts')
 
 ######################

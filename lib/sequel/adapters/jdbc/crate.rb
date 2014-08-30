@@ -100,6 +100,11 @@ module Sequel
 
       module DatasetMethods
 
+        # crate needs times in iso8601 format
+        def literal_time_append(sql, t)
+          literal_string_append(sql, t.iso8601)
+        end
+
       end
 
     end
