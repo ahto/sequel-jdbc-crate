@@ -100,6 +100,12 @@ module Sequel
           literal_string_append(sql, t.iso8601)
         end
 
+        #From: SELECT count(*) AS "count" FROM "posts" WHERE ("category" LIKE '%ruby%' ESCAPE '\') LIMIT 1
+        #To: SELECT count(*) AS "count" FROM "posts" WHERE ("category" LIKE '%ruby%') LIMIT 1
+        def complex_expression_sql_append(sql, op, args)
+          sql = super
+          sql.gsub!(" ESCAPE '\\'",'')
+        end
 
       end
 
