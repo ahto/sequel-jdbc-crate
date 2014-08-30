@@ -40,10 +40,6 @@ module Sequel
           Time.local(*v)
         end
 
-        def application_to_database_timestamp(v)
-          convert_output_timestamp(v, Sequel.database_timezone)
-        end
-
         # # there is no AUTOINCREMENT
         def serial_primary_key_options
           {:primary_key => true, :type=>:String}
