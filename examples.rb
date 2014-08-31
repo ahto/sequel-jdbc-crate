@@ -1,3 +1,12 @@
+
+# Examples taken mostly from
+# http://sequel.jeremyevans.net/rdoc/files/README_rdoc.html
+# to see how much features the driver can do compared to mysql and postgresql
+
+##############
+# Connecting #
+##############
+
 require 'logger'
 require 'sequel'
 require 'sequel/adapters/jdbc/crate'
@@ -110,6 +119,7 @@ DB.create_table :posts do
   String :category
   String :author
   Date :date
+  String :state
   Timestamp :stamp
 end
 
@@ -162,10 +172,48 @@ posts.where('(stamp < ?) AND (author != ?)', Date.today - 3, author_name).first
 # Summarizing Records #
 #######################
 
-# Fix this: ERROR -- : Java::IoCrateActionSql::SQLActionException: ESCAPE is not supported yet.: SELECT count(*) AS "count" FROM "posts" WHERE ("category" LIKE '%ruby%' ESCAPE '\') LIMIT 1
 posts.where(Sequel.like(:category,'%ruby%')).count
 
+puts items.max(:price)
+puts items.min(:price)
+puts items.sum(:price)
+puts items.avg(:price)
 
+####################
+# Ordering Records #
+####################
+
+posts.order(:stamp).all
+posts.order(:stamp, :name).all
+posts.order(:stamp).order_prepend(:name).all
+posts.reverse_order(:stamp).all
+posts.order(Sequel.desc(:stamp)).all
+
+#####################
+# Selecting Columns #
+#####################
+
+posts.select(:stamp).all
+posts.select(:stamp, :name).all
+posts.select(:stamp).select_append(:name)
+
+####################
+# Deleting Records #
+####################
+
+posts.where('stamp < ?', Date.today - 3).delete
+
+#####################
+# Inserting Records #
+#####################
+
+posts.insert(:id => SecureRandom.uuid, :category => 'ruby', :author => 'jeremy')
+
+####################
+# Updating Records #
+####################
+
+posts.where('stamp < ?', Date.today - 7).update(:state => 'archived')
 
 # #or just
 #

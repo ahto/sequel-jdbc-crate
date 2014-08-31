@@ -30,8 +30,6 @@ module Sequel
         #   @basic_type_convertor_map = TypeConvertor::BASIC_MAP
         # end
 
-        #iso8601
-
         # default behaviour will mangle timezones
         def to_application_timestamp(v)
           #TODO: triple check this
