@@ -116,6 +116,7 @@ safe_drop(:posts)
 DB.create_table :posts do
   primary_key :id
   String :name
+  String :title
   String :category
   String :author
   Date :date
@@ -292,8 +293,8 @@ puts post.pk
 class PostWithCompositeKey < Sequel::Model(:posts)
   set_primary_key [:category, :title]
 end
-post = PostWithCompositeKey['ruby', 'hello world']
-puts post.pk
+post_with_composite_key = PostWithCompositeKey['ruby', 'hello world']
+puts post_with_composite_key.pk
 
 
 puts Post[:title => 'hello world']
