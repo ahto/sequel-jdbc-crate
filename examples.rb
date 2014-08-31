@@ -121,6 +121,8 @@ DB.create_table :posts do
   Date :date
   String :state
   Timestamp :stamp
+  Integer :backup_number
+  Integer :num_comments
 end
 
 posts = DB.from(:posts)
@@ -214,6 +216,112 @@ posts.insert(:id => SecureRandom.uuid, :category => 'ruby', :author => 'jeremy')
 ####################
 
 posts.where('stamp < ?', Date.today - 7).update(:state => 'archived')
+
+# Didnt work. ERROR -- : Java::IoCrateActionSql::SQLActionException: Validation failed for backup_number: Invalid value of type 'FUNCTION': UPDATE "posts" SET "backup_number" = ("backup_number" + 1) WHERE ("stamp" < '2014-08-24')
+#posts.where{|o| o.stamp < Date.today - 7}.update(:backup_number => Sequel.+(:backup_number, 1))
+
+################
+# Transactions #
+################
+
+#This works but doesn't actually use transactions. Because crate doesn't support them.
+DB.transaction do
+  posts.insert(:id => SecureRandom.uuid, :category => 'ruby', :author => 'jeremy')
+  posts.where('stamp < ?', Date.today - 7).update(:state => 'archived')
+end
+
+##################
+# Joining Tables #
+##################
+
+#Nope
+
+###############################
+# Column references in Sequel #
+###############################
+
+#Java::JavaLang::IllegalArgumentException: sizes columns and types do not match
+#items.where(:x => 1).all
+
+#Java::JavaLang::IllegalArgumentException: sizes columns and types do not match
+#items.where(1 => :x).all
+
+###############################################
+# Qualifying identifiers (column/table names) #
+###############################################
+
+puts items.literal(:items__price)
+
+puts items.literal(Sequel.qualify(:items, :price))
+
+# This doesn't make sense here, crate doesn't have databases, only tables.
+#DB[:some_schema__posts]
+
+######################
+# Identifier aliases #
+######################
+
+puts items.literal(:price___p)
+puts items.literal(:items__price___p)
+puts items.literal(Sequel.as(:price, :p))
+puts items.literal(Sequel.as(DB[:posts].select{max(id)}, :p))
+
+#################
+# Sequel Models #
+#################
+
+class Post < Sequel::Model
+end
+
+puts Post.table_name
+
+###################
+# Model instances #
+###################
+
+uuid = SecureRandom.uuid
+posts.insert(:id => uuid, :category => 'ruby', :title => 'hello world', :author => 'jeremy')
+DB.run('REFRESH TABLE posts')
+
+post = Post[uuid]
+puts post.pk
+
+
+# doesnt work now. look into this. it does correct query but results in
+# NoMethodError: undefined method `pk' for nil:NilClass
+class PostWithCompositeKey < Sequel::Model(:posts)
+  set_primary_key [:category, :title]
+end
+post = PostWithCompositeKey['ruby', 'hello world']
+puts post.pk
+
+
+puts Post[:title => 'hello world']
+puts Post.first{num_comments < 10}
+
+#######################
+# Acts like a dataset #
+#######################
+
+Post.where(:category => 'ruby').each{|post| p post}
+
+Post.where{num_comments < 7}.delete
+Post.where(Sequel.like(:title, 'ruby')).update(:category => 'ruby')
+
+###########################
+# Accessing record values #
+###########################
+
+puts post.values
+puts post.id
+puts post.title
+
+puts post[:id]
+puts post[:title]
+
+post.title = 'hey there'
+post[:title] = 'hey there'
+post.save
 
 # #or just
 #

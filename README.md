@@ -14,6 +14,8 @@ Example how to connect
 ## Examples
 
 Please take a look at the [examples.rb](examples.rb) file for all the examples. 
+If you get `Java::IoCrateActionSql::SQLActionException: org.elasticsearch.index.shard.IllegalIndexShardStateException`
+then just run the command again.
 
 To run the examples with RVM
 
