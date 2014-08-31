@@ -107,10 +107,10 @@ posts = DB[:posts] # same
 
 posts.insert(:id => SecureRandom.uuid,
              :name => 'abc',
-             :date => Time.now.utc.to_date,
+             :date => Time.now.utc.to_date, # Dates need to be converted to utc first manually, if you care about it.
              :category => 'linux',
              :author => 'JKR',
-             :stamp => Time.now)
+             :stamp => Time.now) # Times don't need to be in utc. crate handles the conversion internally.
 DB.run('REFRESH TABLE posts')
 
 ######################
