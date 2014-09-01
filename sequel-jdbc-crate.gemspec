@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |gem|
   gem.name = %q{sequel-jdbc-crate}
-  gem.version = "0.0.1"
+  gem.version = "0.0.2"
 
   gem.authors = ['Ahto Jussila']
   gem.email = ['ahto@jussila.org']
