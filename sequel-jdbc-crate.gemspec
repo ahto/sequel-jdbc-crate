@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |gem|
   gem.name = %q{sequel-jdbc-crate}
-  gem.version = "0.0.2"
+  gem.version = "0.0.3"
 
   gem.authors = ['Ahto Jussila']
   gem.email = ['ahto@jussila.org']
@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.description = %q{Sequel JDBC adapter for Crate}
 
   gem.add_dependency 'sequel', '~> 4.13.0'
-  gem.add_dependency 'jdbc-crate', '~> 1.0.5.4'
+  gem.add_dependency 'jdbc-crate', '~> 1.1.1.0'
 
   gem.add_development_dependency 'activesupport', "~> 4.0.4"
 end

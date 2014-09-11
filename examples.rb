@@ -6,7 +6,7 @@
 ##############
 # Connecting #
 ##############
-
+require 'securerandom'
 require 'logger'
 require 'sequel'
 require 'sequel/adapters/jdbc/crate'
@@ -19,7 +19,7 @@ DB.loggers << Logger.new($stdout)
 ###########
 def safe_drop(table)
   DB.execute(%Q(DROP TABLE "#{table}"))
-rescue Java::IoCrateActionSql::SQLActionException, NoMethodError
+rescue Sequel::DatabaseError
   #no problem, the table didnt exist
 end
 
@@ -217,11 +217,9 @@ end
 # Column references in Sequel #
 ###############################
 
-#Java::JavaLang::IllegalArgumentException: sizes columns and types do not match
-#items.where(:x => 1).all
+items.where(:x => 1).all
 
-#Java::JavaLang::IllegalArgumentException: sizes columns and types do not match
-#items.where(1 => :x).all
+items.where(1 => :x).all
 
 ###############################################
 # Qualifying identifiers (column/table names) #
