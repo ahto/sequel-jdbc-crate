@@ -8,7 +8,7 @@ module Sequel
     Sequel.synchronize do
       DATABASE_SETUP[:crate] = proc do |db|
         db.extend(Sequel::JDBC::Crate::DatabaseMethods)
-        db.extend_datasets(Sequel::JDBC::Crate::DatasetMethods)
+        db.dataset_class = Sequel::JDBC::Crate::Dataset
 
         #table names in crate are always downcased unless you double-quote them. so Table gets table, but "Table" remains Table
         #sequel will quote table names so dont do anything to it
@@ -80,9 +80,41 @@ module Sequel
           [Java::IoCrateActionSql::SQLActionException]
         end
 
-        #this isn't called but needed so that sequel will do schema parsing
-        #sequel asks: respond_to?(:schema_parse_table, true)
-        def schema_parse_table(table_name, opts)
+        # schema_parse_table result looks like this
+        # [[:author,
+        #   {:type=>:string,
+        #    :db_type=>"string",
+        #    :default=>nil,
+        #    :allow_null=>true,
+        #    :primary_key=>false,
+        #    :column_size=>0,
+        #    :scale=>0,
+        #    :max_length=>0}],
+        #  [:id,
+        #   {:type=>:string,
+        #    :db_type=>"string",
+        #    :default=>nil,
+        #    :allow_null=>true,
+        #    :primary_key=>false,
+        #    :column_size=>0,
+        #    :scale=>0,
+        #    :max_length=>0}],
+
+        # the results of the query look like
+        # {:schema_name=>"doc", :table_name=>"items", :constraint_name=>#<Java::IoCrateClientJdbcTypes::CrateArray:0x37c58b22>, :constraint_type=>"PRIMARY_KEY"}
+        def schema_parse_table(table, opts=OPTS)
+          primary_key_name = DB["SELECT constraint_name from "\
+            "information_schema.table_constraints where "\
+            "schema_name='doc' and constraint_type='PRIMARY_KEY' "\
+            "and table_name=? limit 1", table].first.fetch(:constraint_name).array.first.to_sym
+
+          sch = super
+          sch.each do |c, s|
+            if c == primary_key_name
+              s[:primary_key] = true
+            end
+          end
+          sch
         end
 
         #crate doesn't support transactions
@@ -104,6 +136,12 @@ module Sequel
           sql = super
           sql.gsub!(" ESCAPE '\\'",'')
         end
+
+      end
+
+      # Dataset class for Crate datasets accessed via JDBC.
+      class Dataset < JDBC::Dataset
+        include Sequel::JDBC::Crate::DatasetMethods
 
       end
 
