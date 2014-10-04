@@ -101,6 +101,7 @@ DB.create_table :posts do
   Boolean :visible
   Date :written_on
 end
+sleep 2
 
 posts = DB.from(:posts)
 posts = DB[:posts] # same
