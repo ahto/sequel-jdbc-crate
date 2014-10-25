@@ -80,28 +80,7 @@ module Sequel
           [Java::IoCrateActionSql::SQLActionException]
         end
 
-        # schema_parse_table result looks like this
-        # [[:author,
-        #   {:type=>:string,
-        #    :db_type=>"string",
-        #    :default=>nil,
-        #    :allow_null=>true,
-        #    :primary_key=>false,
-        #    :column_size=>0,
-        #    :scale=>0,
-        #    :max_length=>0}],
-        #  [:id,
-        #   {:type=>:string,
-        #    :db_type=>"string",
-        #    :default=>nil,
-        #    :allow_null=>true,
-        #    :primary_key=>false,
-        #    :column_size=>0,
-        #    :scale=>0,
-        #    :max_length=>0}],
-
-        # the results of the query look like
-        # {:schema_name=>"doc", :table_name=>"items", :constraint_name=>#<Java::IoCrateClientJdbcTypes::CrateArray:0x37c58b22>, :constraint_type=>"PRIMARY_KEY"}
+        #Let sequel know what the primary keys are in a table
         def schema_parse_table(table, opts=OPTS)
           primary_key_name = DB["SELECT constraint_name from "\
             "information_schema.table_constraints where "\
