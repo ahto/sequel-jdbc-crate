@@ -21,7 +21,8 @@ To run the examples with RVM
 
     $ rvm jruby@sequel-jdbc-crate --create
     $ bundle install --path vendor --binstubs
-    $ bundle exec ruby -Ilib examples.rb
+    $ bundle exec ruby -Ilib examples/basic.rb
+    $ bundle exec ruby -Ilib examples/models.rb
     
 ## Exceptions
 

@@ -9,7 +9,7 @@ Gem::Specification.new do |gem|
   gem.homepage = 'http://github.com/ahto/sequel-jdbc-crate'
   gem.licenses = ['Apache-2']
 
-  gem.files = [ 'README.md', 'LICENSE.txt', 'examples.rb', *Dir['lib/**/*'].to_a ]
+  gem.files = [ 'README.md', 'LICENSE.txt', *Dir['lib/**/*'].to_a, *Dir['examples/**/*'].to_a ]
 
   gem.rdoc_options = ["--main", "README.md"]
   gem.require_paths = ["lib"]
