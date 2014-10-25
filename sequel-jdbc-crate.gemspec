@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.summary = %q{Crate jdbc for Sequel.}
   gem.description = %q{Sequel JDBC adapter for Crate}
 
-  gem.add_dependency 'sequel', '~> 4.14.0'
+  gem.add_dependency 'sequel', '~> 4.15.0'
   gem.add_dependency 'jdbc-crate', '~> 1.2.0.0'
 
   gem.add_development_dependency 'activesupport', "~> 4.0.4"
